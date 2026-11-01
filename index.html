@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Midnight</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; background: #0a0508; }
+  body {
+    font-family: "Gowun Batang", "Malgun Gothic", serif;
+    color: #f1dfe0;
+    background: radial-gradient(ellipse at 50% 60%, #3a0d1c 0%, #140509 60%, #050204 100%);
+  }
+  #stage { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 24px; }
+  #neon {
+    font-family: "Playfair Display", serif; font-style: italic;
+    font-size: clamp(40px, 11vw, 78px); color: #ffd9de;
+    text-shadow: 0 0 6px #ff3b63, 0 0 18px #ff3b63, 0 0 42px #c1123a;
+    animation: flick 4s infinite; margin-bottom: 36px; letter-spacing: .04em;
+  }
+  .l {
+    font-size: clamp(18px, 4.6vw, 24px); line-height: 1.9; color: #e9c7cb;
+    opacity: 0; transform: translateY(10px); transition: opacity 1.4s, transform 1.4s;
+    letter-spacing: .05em;
+  }
+  .l.on { opacity: 1; transform: none; }
+  .l.em { color: #ff6b88; text-shadow: 0 0 14px rgba(255,59,99,.6); }
+  #hint { position: fixed; bottom: 36px; width: 100%; text-align: center; color: #8d6a70; font-size: 14px; letter-spacing: .2em; animation: pulse 2s infinite; }
+
+  .curtain {
+    position: fixed; top: 0; bottom: 0; width: 50%; z-index: 10; cursor: pointer;
+    background: repeating-linear-gradient(90deg, #5a0c1f 0 26px, #7a1229 26px 52px, #480a19 52px 78px);
+    box-shadow: inset 0 0 80px rgba(0,0,0,.7);
+    transition: transform 2.2s cubic-bezier(.6,0,.2,1);
+  }
+  #cl { left: 0; } #cr { right: 0; }
+  body.open #cl { transform: translateX(-100%); }
+  body.open #cr { transform: translateX(100%); }
+  #enter {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 11;
+    color: #f1dfe0; font-size: 18px; letter-spacing: .3em; text-align: center; pointer-events: none;
+    text-shadow: 0 0 10px rgba(0,0,0,.8); animation: pulse 2s infinite; transition: opacity .5s;
+  }
+  #enter small { display: block; margin-top: 10px; font-size: 13px; color: #d9a3ac; letter-spacing: .15em; }
+  body.open #enter { opacity: 0; }
+
+  .dust { position: fixed; bottom: -10px; width: 3px; height: 3px; border-radius: 50%; background: #ff8fa3; opacity: .5; pointer-events: none; animation: up linear forwards; box-shadow: 0 0 6px #ff3b63; }
+  @keyframes up { to { transform: translateY(-110vh) translateX(30px); opacity: 0; } }
+  @keyframes pulse { 50% { opacity: .35; } }
+  @keyframes flick { 0%,19%,21%,60%,62%,100% { opacity: 1; } 20%,61% { opacity: .75; } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="neon">Only for you</div>
+  <div id="lines"></div>
+</div>
+<div id="hint">TAP TO CONTINUE</div>
+
+<div class="curtain" id="cl"></div>
+<div class="curtain" id="cr"></div>
+<div id="enter">오늘 밤, 초대합니다<small>눌러서 입장</small></div>
+
+<script>
+  // ↓ 수정할 부분 (em: 강조)
+  const LINES = [
+    ["오늘은 좀 일찍 와줘.", ""],
+    ["할 말이 있는데, 전화로는 안 되겠어.", ""],
+    ["요즘 네 생각만 하면 집중이 안 돼.", ""],
+    ["그 눈빛, 알고 있지?", ""],
+    ["오늘 밤은 아무도 못 오게 할 거야.", "em"],
+    ["너만 와.", "em"]
+  ];
+
+  const box = document.getElementById("lines");
+  const els = LINES.map(([t, c]) => {
+    const d = document.createElement("div");
+    d.className = "l " + c; d.textContent = t; box.appendChild(d); return d;
+  });
+
+  let opened = false, idx = 0, timer;
+  function next() {
+    if (idx < els.length) {
+      els[idx++].classList.add("on");
+    } else {
+      document.getElementById("hint").textContent = "";
+      clearInterval(timer);
+    }
+  }
+  function open() {
+    if (opened) return;
+    opened = true;
+    document.body.classList.add("open");
+    setTimeout(() => { next(); timer = setInterval(next, 2400); }, 1800);
+  }
+  document.getElementById("cl").addEventListener("click", open);
+  document.getElementById("cr").addEventListener("click", open);
+
+  function dust() {
+    const s = document.createElement("span");
+    s.className = "dust";
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.animationDuration = 6 + Math.random() * 6 + "s";
+    s.style.transform = "scale(" + (0.6 + Math.random() * 1.6) + ")";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 12000);
+  }
+  setInterval(dust, 300);
+</script>
+</body>
+</html>
